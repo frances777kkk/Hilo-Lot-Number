@@ -213,13 +213,21 @@
 
         function parseLotNumberDates(lotNum) {
             if (lotNum.length < 8) return { mfgDate: '', useByDate: '' };
-            const year = 2000 + parseInt(lotNum.substring(2, 4));
-            const month = parseInt(lotNum.substring(4, 6));
-            const lastDay = new Date(year, month, 0).getDate();
-            return {
-                mfgDate: `${month}/${lastDay}/${year}`,
-                useByDate: `${month}/${lastDay}/${year + 3}`
-            };
+            
+            // Extract first 6 digits after 'HX': YYMMDD
+            // Example: HX26020301 -> 260203 -> 02/03/2026
+            const yearPart = lotNum.substring(2, 4);   // "26"
+            const monthPart = lotNum.substring(4, 6);  // "02"
+            const dayPart = lotNum.substring(6, 8);    // "03"
+            
+            const year = 2000 + parseInt(yearPart);    // 2026
+            const month = parseInt(monthPart);         // 2
+            const day = parseInt(dayPart);             // 3
+            
+            const mfgDate = `${month}/${day}/${year}`;
+            const useByDate = `${month}/${day}/${year + 3}`;
+            
+            return { mfgDate, useByDate };
         }
 
         window.renderTable = function() {
