@@ -3,18 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isolation Gown Inventory Manager</title>
+    <title>Isolation Gown Inventory Manager - Firebase</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-    </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
     <div id="app" class="p-8">
         <div class="max-w-5xl mx-auto">
-            <!-- Main Card -->
             <div class="bg-white rounded-lg shadow-xl p-8 mb-6">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
@@ -22,366 +16,215 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
                         <h1 class="text-3xl font-bold text-gray-800">Isolation Gown Inventory Manager</h1>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">🔄 LIVE SYNC</span>
                     </div>
-                    <div class="flex gap-2">
-                        <button id="resetBtn" class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition hidden" title="Reset to original data">
-                            Reset (重置)
-                        </button>
-                        <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition hidden">
-                            Logout (退出)
-                        </button>
-                    </div>
+                    <button id="logoutBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition hidden">Logout</button>
                 </div>
 
-                <!-- Message Box -->
+                <div id="statusBadge" class="mb-4 p-3 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium hidden">🔄 Connecting...</div>
                 <div id="messageBox" class="hidden mb-4 p-4 rounded-lg flex items-center gap-2"></div>
 
-                <!-- PIN Entry -->
                 <div id="pinStep" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Enter PIN Code (输入PIN码)</label>
-                        <input type="password" id="pinInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter PIN" autofocus>
+                        <input type="password" id="pinInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="Enter PIN" autofocus>
                     </div>
-                    <button onclick="handlePinSubmit()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                        Submit (提交)
-                    </button>
+                    <button onclick="handlePinSubmit()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">Submit</button>
                 </div>
 
-                <!-- Operation Type Step -->
-                <div id="operationTypeStep" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Operation (选择操作)</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <button onclick="handleOperationType('add')" class="px-6 py-8 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium text-lg">
-                                <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Add (增加)
-                            </button>
-                            <button onclick="handleOperationType('delete')" class="px-6 py-8 bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium text-lg">
-                                <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                                </svg>
-                                Delete (删除)
-                            </button>
-                        </div>
+                <div id="actionStep" class="space-y-4 hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Action</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="selectAction('add')" class="px-6 py-8 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-lg">
+                            <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Add (添加)
+                        </button>
+                        <button onclick="selectAction('delete')" class="px-6 py-8 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium text-lg">
+                            <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            Delete (删除)
+                        </button>
                     </div>
                 </div>
 
-                <!-- Lot Number Step -->
                 <div id="lotNumberStep" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Lot Number (批次号)</label>
-                        <input type="text" id="lotNumberInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="e.g., HX26010501">
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="goBackToOperationType()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-medium">
-                            Back (后退)
-                        </button>
-                        <button onclick="handleLotNumberSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            Next (下一步)
-                        </button>
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Lot Number (批次号)</label>
+                        <input type="text" id="lotNumberInput" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g., HX26010501"></div>
+                    <button onclick="handleLotNumberSubmit()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Next</button>
                 </div>
 
-                <!-- Size Step -->
                 <div id="sizeStep" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Size (尺寸): Large or Extra Large</label>
-                        <input type="text" id="sizeInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter L or XL">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Size: Large or Extra Large</label>
+                        <input type="text" id="sizeInput" class="w-full px-4 py-2 border rounded-lg" placeholder="L or XL"></div>
                     <div class="flex gap-3">
-                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-medium">
-                            Back (后退)
-                        </button>
-                        <button onclick="handleSizeSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            Next (下一步)
-                        </button>
+                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg">Back</button>
+                        <button onclick="handleSizeSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg">Next</button>
                     </div>
                 </div>
 
-                <!-- Pallet Amount Step -->
                 <div id="palletStep" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Number of Pallets (托盘数量)</label>
-                        <input type="number" id="palletInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter number of pallets">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Amount of Pallets</label>
+                        <input type="number" id="palletInput" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter number"></div>
                     <div class="flex gap-3">
-                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-medium">
-                            Back (后退)
-                        </button>
-                        <button onclick="handlePalletSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            Next (下一步)
-                        </button>
+                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg">Back</button>
+                        <button onclick="handlePalletSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg">Next</button>
                     </div>
                 </div>
 
-                <!-- Completed Step -->
                 <div id="completedStep" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Is it completed? (是否完成?) Yes/No</label>
-                        <input type="text" id="completedInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter Yes or No">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Is it completed? Yes/No</label>
+                        <input type="text" id="completedInput" class="w-full px-4 py-2 border rounded-lg" placeholder="Yes or No"></div>
                     <div class="flex gap-3">
-                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-medium">
-                            Back (后退)
-                        </button>
-                        <button onclick="handleCompletedSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            Update Inventory (更新库存)
-                        </button>
+                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg">Back</button>
+                        <button onclick="handleCompletedSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg">Update</button>
                     </div>
                 </div>
 
-                <!-- Continue Step -->
-                <div id="continueStep" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Continue with another operation? (继续其他操作?) Yes/No</label>
-                        <input type="text" id="continueInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Enter Yes or No">
-                    </div>
+                <div id="deleteStep" class="space-y-4 hidden">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Lot Number</label>
+                        <input type="text" id="deleteLotInput" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g., HX26010501"></div>
+                    <button onclick="handleDeleteLotSubmit()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg">Next</button>
+                </div>
+
+                <div id="deleteSizeStep" class="space-y-4 hidden">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Size: L or XL</label>
+                        <input type="text" id="deleteSizeInput" class="w-full px-4 py-2 border rounded-lg" placeholder="L or XL"></div>
                     <div class="flex gap-3">
-                        <button onclick="goBack()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-medium">
-                            Back (后退)
-                        </button>
-                        <button onclick="handleContinueSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            Submit (提交)
-                        </button>
+                        <button onclick="goBackDelete()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg">Back</button>
+                        <button onclick="handleDeleteSizeSubmit()" class="w-2/3 px-4 py-2 bg-indigo-600 text-white rounded-lg">Next</button>
                     </div>
                 </div>
 
-                <!-- Done Step -->
-                <div id="doneStep" class="text-center space-y-4 hidden">
-                    <svg class="w-16 h-16 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="text-xl font-medium text-gray-800">All updates completed! (所有更新已完成！)</p>
-                    <div class="flex gap-3 justify-center flex-wrap">
-                        <button onclick="downloadCSV()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                            </svg>
-                            Download CSV (下载CSV)
-                        </button>
-                        <button onclick="copyToClipboard()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                            </svg>
-                            Copy to Clipboard (复制)
-                        </button>
-                        <button onclick="toggleExportData()" class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
-                            <span id="toggleText">Show Data (显示)</span>
-                        </button>
-                    </div>
-                    <div id="copySuccessMsg" class="hidden p-3 bg-green-100 text-green-800 rounded-lg font-medium"></div>
-                    <div id="exportDataBox" class="hidden mt-4 text-left">
-                        <p class="text-sm text-gray-600 mb-2 font-medium">CSV Data - Click to select all, then Ctrl+C (Windows) or Cmd+C (Mac) to copy:</p>
-                        <p class="text-sm text-gray-500 mb-2">(CSV数据 - 点击选择全部，然后 Ctrl+C 或 Cmd+C 复制)</p>
-                        <textarea id="exportTextarea" readonly class="w-full h-96 p-4 border-2 border-indigo-300 rounded-lg font-mono text-xs bg-gray-50" onclick="this.select()"></textarea>
+                <div id="deletePalletStep" class="space-y-4 hidden">
+                    <div><label class="block text-sm font-medium text-gray-700 mb-2">Pallets to Remove</label>
+                        <input type="number" id="deletePalletInput" class="w-full px-4 py-2 border rounded-lg" placeholder="Enter number"></div>
+                    <div class="flex gap-3">
+                        <button onclick="goBackDelete()" class="w-1/3 px-4 py-2 bg-gray-500 text-white rounded-lg">Back</button>
+                        <button onclick="handleDeletePalletSubmit()" class="w-2/3 px-4 py-2 bg-red-600 text-white rounded-lg">Delete</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Inventory Table -->
             <div id="inventorySection" class="bg-white rounded-lg shadow-xl p-6 hidden">
                 <div class="flex justify-between items-center mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-800">Current Inventory (当前库存)</h2>
-                        <p id="lastSavedTime" class="text-xs text-gray-500 mt-1"></p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                            </svg>
-                            Download (下载)
-                        </button>
-                        <button onclick="copyToClipboard()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                            </svg>
-                            Copy (复制)
-                        </button>
+                    <h2 class="text-xl font-bold text-gray-800">Current Inventory (实时同步)</h2>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="downloadCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">Download</button>
+                        <button onclick="clearAllInventory()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm">Clear All</button>
                     </div>
                 </div>
-                <div id="tableSuccessMsg" class="hidden mb-3 p-3 bg-green-100 text-green-800 rounded-lg text-sm font-medium"></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="px-3 py-2 text-left">Lot Number</th>
                                 <th class="px-3 py-2 text-left">Mfg Date</th>
-                                <th class="px-3 py-2 text-left">Use-By Date</th>
+                                <th class="px-3 py-2 text-left">Use-By</th>
                                 <th class="px-3 py-2 text-left">Qty (L)</th>
                                 <th class="px-3 py-2 text-left">Qty (XL)</th>
                                 <th class="px-3 py-2 text-left">Pallet (L)</th>
                                 <th class="px-3 py-2 text-left">Pallet (XL)</th>
-                                <th class="px-3 py-2 text-left">Total Qty</th>
+                                <th class="px-3 py-2 text-left">Total</th>
                                 <th class="px-3 py-2 text-left">Note</th>
+                                <th class="px-3 py-2 text-left">Edit</th>
                             </tr>
                         </thead>
-                        <tbody id="inventoryTableBody">
-                        </tbody>
+                        <tbody id="inventoryTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCN1ZTORnEq58p2QkoLijAwvS6mYXBNZw0",
+            authDomain: "pallets-inventory.firebaseapp.com",
+            databaseURL: "https://pallets-inventory-default-rtdb.firebaseio.com",
+            projectId: "pallets-inventory",
+            storageBucket: "pallets-inventory.firebasestorage.app",
+            messagingSenderId: "759793014443",
+            appId: "1:759793014443:web:69fea877162ffa23d509ee"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.db = db;
+
+        const badge = document.getElementById('statusBadge');
+        badge.classList.remove('hidden');
+        setTimeout(() => {
+            badge.textContent = '✅ Connected to Firebase!';
+            badge.classList.remove('bg-blue-100', 'text-blue-800');
+            badge.classList.add('bg-green-100', 'text-green-800');
+            setTimeout(() => badge.classList.add('hidden'), 2000);
+        }, 500);
+
+        const inventoryRef = ref(db, 'inventory');
+        onValue(inventoryRef, (snapshot) => {
+            const data = snapshot.val();
+            window.state.inventory = data ? Object.values(data) : [];
+            if (window.state.isAuthenticated) {
+                window.renderTable();
+            }
+        });
+
+        window.saveToFirebase = function() {
+            set(inventoryRef, window.state.inventory);
+        };
+    </script>
+
     <script>
-        // Default inventory data
-        const DEFAULT_INVENTORY = [
-            { lotNumber: 'HX25123101', mfgDate: '12/30/2025', useByDate: '12/30/2028', qtyLarge: 3600, qtyXL: 0, palletL: 2, palletXL: 0, totalQty: 3600, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX25123103', mfgDate: '12/31/2025', useByDate: '12/31/2028', qtyLarge: 0, qtyXL: 1800, palletL: 0, palletXL: 1, totalQty: 1800, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX25123106', mfgDate: '12/30/2025', useByDate: '12/30/2028', qtyLarge: 1800, qtyXL: 0, palletL: 1, palletXL: 0, totalQty: 1800, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX25122701', mfgDate: '12/31/2025', useByDate: '12/31/2028', qtyLarge: 3600, qtyXL: 0, palletL: 2, palletXL: 0, totalQty: 3600, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX25123001', mfgDate: '12/31/2025', useByDate: '12/31/2028', qtyLarge: 1800, qtyXL: 0, palletL: 1, palletXL: 0, totalQty: 1800, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010501', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 1800, qtyXL: 0, palletL: 1, palletXL: 0, totalQty: 1800, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010601', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 1800, qtyXL: 0, palletL: 1, palletXL: 0, totalQty: 1800, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010301', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 3600, qtyXL: 0, palletL: 2, palletXL: 0, totalQty: 3600, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010201', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 1800, qtyXL: 0, palletL: 1, palletXL: 0, totalQty: 1800, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010701', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 9000, qtyXL: 0, palletL: 5, palletXL: 0, totalQty: 9000, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010901', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 5400, qtyXL: 0, palletL: 3, palletXL: 0, totalQty: 5400, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26011401', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 3600, qtyXL: 0, palletL: 2, palletXL: 0, totalQty: 3600, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26013101', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 7200, qtyXL: 0, palletL: 4, palletXL: 0, totalQty: 7200, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26011301', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 3600, qtyXL: 0, palletL: 2, palletXL: 0, totalQty: 3600, note: '', shipDate: '', trackingNumber: '', destination: '' },
-            { lotNumber: 'HX26010602', mfgDate: '1/31/2026', useByDate: '1/31/2029', qtyLarge: 0, qtyXL: 10800, palletL: 0, palletXL: 6, totalQty: 10800, note: '', shipDate: '', trackingNumber: '', destination: '' }
-        ];
-
-        // Load inventory from localStorage or use default
-        function loadInventory() {
-            const saved = localStorage.getItem('gownInventory');
-            if (saved) {
-                try {
-                    return JSON.parse(saved);
-                } catch (e) {
-                    console.error('Error loading saved inventory:', e);
-                    return [...DEFAULT_INVENTORY];
-                }
-            }
-            return [...DEFAULT_INVENTORY];
-        }
-
-        // Save inventory to localStorage
-        function saveInventory() {
-            try {
-                localStorage.setItem('gownInventory', JSON.stringify(state.inventory));
-                const now = new Date();
-                localStorage.setItem('gownInventoryLastUpdate', now.toISOString());
-                updateLastSavedDisplay();
-            } catch (e) {
-                console.error('Error saving inventory:', e);
-                showMessage('Failed to save data (保存失败)', 'error');
-            }
-        }
-
-        // Update last saved time display
-        function updateLastSavedDisplay() {
-            const lastUpdate = localStorage.getItem('gownInventoryLastUpdate');
-            const display = document.getElementById('lastSavedTime');
-            if (lastUpdate && display) {
-                const date = new Date(lastUpdate);
-                const formatted = date.toLocaleString('en-US', { 
-                    month: '2-digit', 
-                    day: '2-digit', 
-                    year: 'numeric', 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: true
-                });
-                display.textContent = `Last saved (最后保存): ${formatted}`;
-            }
-        }
-
-        // State management
-        let state = {
+        window.state = {
             isAuthenticated: false,
             currentStep: 'pin',
-            operationType: '', // 'add' or 'delete'
+            currentAction: '',
             lotNumber: '',
             size: '',
             palletAmount: '',
             isCompleted: '',
-            continueProcess: '',
-            showExportData: false,
-            inventory: loadInventory()
+            deleteLotNumber: '',
+            deleteSize: '',
+            deletePalletAmount: '',
+            inventory: []
         };
 
-        // Utility functions
         function showMessage(msg, type) {
             const box = document.getElementById('messageBox');
-            box.className = `mb-4 p-4 rounded-lg flex items-center gap-2 ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            box.innerHTML = `
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    ${type === 'success' 
-                        ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
-                        : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'
-                    }
-                </svg>
-                <span>${msg}</span>
-            `;
+            box.className = `mb-4 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+            box.textContent = msg;
             box.classList.remove('hidden');
-            setTimeout(() => box.classList.add('hidden'), 5000);
+            setTimeout(() => box.classList.add('hidden'), 4000);
         }
 
         function showStep(step) {
-            ['pinStep', 'operationTypeStep', 'lotNumberStep', 'sizeStep', 'palletStep', 'completedStep', 'continueStep', 'doneStep'].forEach(s => {
+            ['pinStep', 'actionStep', 'deleteStep', 'deleteSizeStep', 'deletePalletStep', 'lotNumberStep', 'sizeStep', 'palletStep', 'completedStep'].forEach(s => {
                 document.getElementById(s).classList.add('hidden');
             });
             document.getElementById(step + 'Step').classList.remove('hidden');
             
             if (step !== 'pin') {
                 document.getElementById('logoutBtn').classList.remove('hidden');
-                document.getElementById('resetBtn').classList.remove('hidden');
                 document.getElementById('inventorySection').classList.remove('hidden');
-                renderTable();
-                updateLastSavedDisplay();
             }
-            
-            // Focus on input
-            setTimeout(() => {
-                const inputs = {
-                    'pin': 'pinInput',
-                    'lotNumber': 'lotNumberInput',
-                    'size': 'sizeInput',
-                    'pallet': 'palletInput',
-                    'completed': 'completedInput',
-                    'continue': 'continueInput'
-                };
-                if (inputs[step]) {
-                    document.getElementById(inputs[step]).focus();
-                }
-            }, 100);
         }
 
         function parseLotNumberDates(lotNum) {
             if (lotNum.length < 8) return { mfgDate: '', useByDate: '' };
-            
-            const yearPart = lotNum.substring(2, 4);
-            const monthPart = lotNum.substring(4, 6);
-            
-            const year = 2000 + parseInt(yearPart);
-            const month = parseInt(monthPart);
-            
+            const year = 2000 + parseInt(lotNum.substring(2, 4));
+            const month = parseInt(lotNum.substring(4, 6));
             const lastDay = new Date(year, month, 0).getDate();
-            
-            const mfgDate = `${month}/${lastDay}/${year}`;
-            const useByYear = year + 3;
-            const useByDate = `${month}/${lastDay}/${useByYear}`;
-            
-            return { mfgDate, useByDate };
+            return {
+                mfgDate: `${month}/${lastDay}/${year}`,
+                useByDate: `${month}/${lastDay}/${year + 3}`
+            };
         }
 
-        function renderTable() {
+        window.renderTable = function() {
             const tbody = document.getElementById('inventoryTableBody');
-            
-            // Calculate totals
-            const totalQtyLarge = state.inventory.reduce((sum, item) => sum + item.qtyLarge, 0);
-            const totalQtyXL = state.inventory.reduce((sum, item) => sum + item.qtyXL, 0);
-            const totalPalletL = state.inventory.reduce((sum, item) => sum + item.palletL, 0);
-            const totalPalletXL = state.inventory.reduce((sum, item) => sum + item.palletXL, 0);
-            const grandTotal = state.inventory.reduce((sum, item) => sum + item.totalQty, 0);
-            const totalPallets = totalPalletL + totalPalletXL;
-            
-            tbody.innerHTML = state.inventory.map(item => `
+            tbody.innerHTML = window.state.inventory.map((item, i) => `
                 <tr class="border-b hover:bg-gray-50">
                     <td class="px-3 py-2 font-medium">${item.lotNumber}</td>
                     <td class="px-3 py-2">${item.mfgDate}</td>
@@ -392,384 +235,250 @@
                     <td class="px-3 py-2">${item.palletXL}</td>
                     <td class="px-3 py-2 font-medium">${item.totalQty}</td>
                     <td class="px-3 py-2 text-xs">${item.note}</td>
+                    <td class="px-3 py-2"><button onclick="editItem(${i})" class="px-2 py-1 bg-blue-500 text-white rounded text-xs">Edit</button></td>
                 </tr>
-            `).join('') + `
-                <tr class="border-t-2 border-gray-400 bg-blue-50 font-bold">
-                    <td class="px-3 py-2" colspan="3">Total Qty (总数量)</td>
-                    <td class="px-3 py-2">${totalQtyLarge}</td>
-                    <td class="px-3 py-2">${totalQtyXL}</td>
-                    <td class="px-3 py-2">${totalPalletL}</td>
-                    <td class="px-3 py-2">${totalPalletXL}</td>
-                    <td class="px-3 py-2">${grandTotal}</td>
-                    <td class="px-3 py-2"></td>
-                </tr>
-                <tr class="bg-blue-50 font-bold">
-                    <td class="px-3 py-2" colspan="3">Total Pallet (总托盘)</td>
-                    <td class="px-3 py-2" colspan="2">${totalPallets}</td>
-                    <td class="px-3 py-2" colspan="4"></td>
-                </tr>
-                <tr class="bg-blue-50 font-bold">
-                    <td class="px-3 py-2" colspan="3">Total Large Size Pallet (L尺寸托盘)</td>
-                    <td class="px-3 py-2" colspan="2">${totalPalletL}</td>
-                    <td class="px-3 py-2" colspan="4"></td>
-                </tr>
-                <tr class="bg-blue-50 font-bold">
-                    <td class="px-3 py-2" colspan="3">Total Large Size Qty (L尺寸数量)</td>
-                    <td class="px-3 py-2" colspan="2">${totalQtyLarge}</td>
-                    <td class="px-3 py-2" colspan="4"></td>
+            `).join('');
+
+            const totals = window.state.inventory.reduce((acc, item) => ({
+                large: acc.large + (item.qtyLarge || 0),
+                xl: acc.xl + (item.qtyXL || 0),
+                palletL: acc.palletL + (item.palletL || 0),
+                palletXL: acc.palletXL + (item.palletXL || 0)
+            }), { large: 0, xl: 0, palletL: 0, palletXL: 0 });
+
+            tbody.innerHTML += `
+                <tr class="bg-indigo-50 font-bold border-t-2">
+                    <td class="px-3 py-3" colspan="3">TOTAL</td>
+                    <td class="px-3 py-3">${totals.large}</td>
+                    <td class="px-3 py-3">${totals.xl}</td>
+                    <td class="px-3 py-3">${totals.palletL}</td>
+                    <td class="px-3 py-3">${totals.palletXL}</td>
+                    <td class="px-3 py-3">${totals.large + totals.xl}</td>
+                    <td class="px-3 py-3 text-xs">Pallets: ${totals.palletL + totals.palletXL}</td>
+                    <td></td>
                 </tr>
             `;
-            updateLastSavedDisplay();
-        }
+        };
 
-        function generateCSV() {
-            const headers = ['Lot Number', 'Mfg Date', 'Use-By Date', 'Qty Large', 'Qty XL', 'Pallet L', 'Pallet XL', 'Total Qty', 'Note', 'Ship Date', 'Tracking Number', 'Destination'];
-            
-            // Calculate totals
-            const totalQtyLarge = state.inventory.reduce((sum, item) => sum + item.qtyLarge, 0);
-            const totalQtyXL = state.inventory.reduce((sum, item) => sum + item.qtyXL, 0);
-            const totalPalletL = state.inventory.reduce((sum, item) => sum + item.palletL, 0);
-            const totalPalletXL = state.inventory.reduce((sum, item) => sum + item.palletXL, 0);
-            const grandTotal = state.inventory.reduce((sum, item) => sum + item.totalQty, 0);
-            const totalPallets = totalPalletL + totalPalletXL;
-            
-            const csvContent = [
-                headers.join(','),
-                ...state.inventory.map(row => [
-                    row.lotNumber,
-                    `"${row.mfgDate}"`,
-                    `"${row.useByDate}"`,
-                    row.qtyLarge,
-                    row.qtyXL,
-                    row.palletL,
-                    row.palletXL,
-                    row.totalQty,
-                    `"${row.note}"`,
-                    `"${row.shipDate}"`,
-                    `"${row.trackingNumber}"`,
-                    `"${row.destination}"`
-                ].join(',')),
-                '',
-                `total Qty,,,${totalQtyLarge},${totalQtyXL},${totalPalletL},${totalPalletXL},${grandTotal}`,
-                `Total Pallet,${totalPallets}`,
-                `Total Large Size Pallet,${totalPalletL}`,
-                `Total Large Size Qty,${totalQtyLarge}`
-            ].join('\n');
-            return csvContent;
-        }
-
-        // Event handlers
         function handlePinSubmit() {
-            const pin = document.getElementById('pinInput').value;
-            if (pin === '1107') {
-                state.isAuthenticated = true;
-                state.currentStep = 'operationType';
-                showMessage('Authentication successful! (验证成功！)', 'success');
-                showStep('operationType');
-                document.getElementById('pinInput').value = '';
+            if (document.getElementById('pinInput').value === '1107') {
+                window.state.isAuthenticated = true;
+                showMessage('✅ Authenticated!', 'success');
+                showStep('action');
             } else {
-                showMessage('Incorrect PIN. Please try again. (PIN码错误，请重试)', 'error');
-                document.getElementById('pinInput').value = '';
+                showMessage('❌ Incorrect PIN', 'error');
             }
+            document.getElementById('pinInput').value = '';
         }
 
-        function handleOperationType(type) {
-            state.operationType = type;
-            state.currentStep = 'lotNumber';
-            const message = type === 'add' ? 'Add mode selected (已选择增加模式)' : 'Delete mode selected (已选择删除模式)';
-            showMessage(message, 'success');
-            showStep('lotNumber');
-        }
-
-        function goBackToOperationType() {
-            state.currentStep = 'operationType';
-            state.lotNumber = '';
-            document.getElementById('lotNumberInput').value = '';
-            showStep('operationType');
+        function selectAction(action) {
+            window.state.currentAction = action;
+            showStep(action === 'add' ? 'lotNumber' : 'delete');
         }
 
         function handleLotNumberSubmit() {
-            state.lotNumber = document.getElementById('lotNumberInput').value.trim();
-            if (state.lotNumber) {
-                state.currentStep = 'size';
-                showStep('size');
-            }
+            window.state.lotNumber = document.getElementById('lotNumberInput').value.trim();
+            if (window.state.lotNumber) showStep('size');
         }
 
         function handleSizeSubmit() {
-            state.size = document.getElementById('sizeInput').value;
-            if (state.size) {
-                state.currentStep = 'pallet';
-                showStep('pallet');
-            }
+            window.state.size = document.getElementById('sizeInput').value;
+            if (window.state.size) showStep('pallet');
         }
 
         function handlePalletSubmit() {
-            state.palletAmount = document.getElementById('palletInput').value;
-            if (state.palletAmount && !isNaN(state.palletAmount) && parseInt(state.palletAmount) > 0) {
-                if (state.operationType === 'add') {
-                    state.currentStep = 'completed';
-                    showStep('completed');
-                } else if (state.operationType === 'delete') {
-                    // For delete, skip completed step and update directly
-                    state.isCompleted = 'yes'; // Set a default for delete
-                    updateInventory();
-                    state.currentStep = 'continue';
-                    showStep('continue');
-                }
+            window.state.palletAmount = document.getElementById('palletInput').value;
+            if (window.state.palletAmount && parseInt(window.state.palletAmount) > 0) {
+                showStep('completed');
             } else {
-                showMessage('Please enter a valid pallet amount. (请输入有效的托盘数量)', 'error');
+                showMessage('Invalid pallet amount', 'error');
             }
         }
 
         function handleCompletedSubmit() {
-            state.isCompleted = document.getElementById('completedInput').value;
-            if (state.isCompleted.toLowerCase() === 'yes' || state.isCompleted.toLowerCase() === 'no') {
-                updateInventory();
-                state.currentStep = 'continue';
-                showStep('continue');
-            } else {
-                showMessage('Please enter "Yes" or "No". (请输入 "Yes" 或 "No")', 'error');
-            }
-        }
-
-        function updateInventory() {
-            const pallets = parseInt(state.palletAmount);
-            const qtyPerPallet = 1800;
-            const totalQty = pallets * qtyPerPallet;
-            
-            const existingIndex = state.inventory.findIndex(item => item.lotNumber === state.lotNumber);
-            
-            if (state.operationType === 'add') {
-                // Add operation
-                const noteText = state.isCompleted.toLowerCase() === 'no' ? 'not completed' : '';
+            const completed = document.getElementById('completedInput').value.toLowerCase();
+            if (completed === 'yes' || completed === 'no') {
+                const pallets = parseInt(window.state.palletAmount);
+                const qty = pallets * 1800;
+                const idx = window.state.inventory.findIndex(item => item.lotNumber === window.state.lotNumber);
+                const note = completed === 'no' ? 'not completed' : '';
                 
-                if (existingIndex !== -1) {
-                    if (state.size.toLowerCase() === 'large' || state.size.toLowerCase() === 'l') {
-                        state.inventory[existingIndex].qtyLarge += totalQty;
-                        state.inventory[existingIndex].palletL += pallets;
-                    } else if (state.size.toLowerCase() === 'extra large' || state.size.toLowerCase() === 'xl') {
-                        state.inventory[existingIndex].qtyXL += totalQty;
-                        state.inventory[existingIndex].palletXL += pallets;
+                if (idx !== -1) {
+                    const isLarge = window.state.size.toLowerCase() === 'large' || window.state.size.toLowerCase() === 'l';
+                    if (isLarge) {
+                        window.state.inventory[idx].qtyLarge += qty;
+                        window.state.inventory[idx].palletL += pallets;
+                    } else {
+                        window.state.inventory[idx].qtyXL += qty;
+                        window.state.inventory[idx].palletXL += pallets;
                     }
-                    state.inventory[existingIndex].totalQty = state.inventory[existingIndex].qtyLarge + state.inventory[existingIndex].qtyXL;
-                    state.inventory[existingIndex].note = noteText;
-                    
-                    showMessage(`Updated lot ${state.lotNumber} successfully! (批次 ${state.lotNumber} 更新成功！)`, 'success');
+                    window.state.inventory[idx].totalQty = window.state.inventory[idx].qtyLarge + window.state.inventory[idx].qtyXL;
+                    window.state.inventory[idx].note = note;
                 } else {
-                    const { mfgDate, useByDate } = parseLotNumberDates(state.lotNumber);
-                    
-                    const newEntry = {
-                        lotNumber: state.lotNumber,
-                        mfgDate: mfgDate,
-                        useByDate: useByDate,
-                        qtyLarge: state.size.toLowerCase() === 'large' || state.size.toLowerCase() === 'l' ? totalQty : 0,
-                        qtyXL: state.size.toLowerCase() === 'extra large' || state.size.toLowerCase() === 'xl' ? totalQty : 0,
-                        palletL: state.size.toLowerCase() === 'large' || state.size.toLowerCase() === 'l' ? pallets : 0,
-                        palletXL: state.size.toLowerCase() === 'extra large' || state.size.toLowerCase() === 'xl' ? pallets : 0,
-                        totalQty: totalQty,
-                        note: noteText,
+                    const { mfgDate, useByDate } = parseLotNumberDates(window.state.lotNumber);
+                    const isLarge = window.state.size.toLowerCase() === 'large' || window.state.size.toLowerCase() === 'l';
+                    window.state.inventory.push({
+                        lotNumber: window.state.lotNumber,
+                        mfgDate,
+                        useByDate,
+                        qtyLarge: isLarge ? qty : 0,
+                        qtyXL: isLarge ? 0 : qty,
+                        palletL: isLarge ? pallets : 0,
+                        palletXL: isLarge ? 0 : pallets,
+                        totalQty: qty,
+                        note,
                         shipDate: '',
                         trackingNumber: '',
                         destination: ''
-                    };
-                    state.inventory.push(newEntry);
-                    showMessage(`Added new lot ${state.lotNumber} successfully! (新批次 ${state.lotNumber} 添加成功！)`, 'success');
+                    });
                 }
-            } else if (state.operationType === 'delete') {
-                // Delete operation
-                if (existingIndex !== -1) {
-                    const item = state.inventory[existingIndex];
-                    let canDelete = false;
-                    
-                    if (state.size.toLowerCase() === 'large' || state.size.toLowerCase() === 'l') {
-                        if (item.qtyLarge >= totalQty && item.palletL >= pallets) {
-                            item.qtyLarge -= totalQty;
-                            item.palletL -= pallets;
-                            canDelete = true;
-                        } else {
-                            showMessage(`Not enough inventory! Current: ${item.qtyLarge} qty, ${item.palletL} pallets (库存不足！当前: ${item.qtyLarge} 件, ${item.palletL} 托盘)`, 'error');
-                            return;
-                        }
-                    } else if (state.size.toLowerCase() === 'extra large' || state.size.toLowerCase() === 'xl') {
-                        if (item.qtyXL >= totalQty && item.palletXL >= pallets) {
-                            item.qtyXL -= totalQty;
-                            item.palletXL -= pallets;
-                            canDelete = true;
-                        } else {
-                            showMessage(`Not enough inventory! Current: ${item.qtyXL} qty, ${item.palletXL} pallets (库存不足！当前: ${item.qtyXL} 件, ${item.palletXL} 托盘)`, 'error');
-                            return;
-                        }
-                    }
-                    
-                    if (canDelete) {
-                        item.totalQty = item.qtyLarge + item.qtyXL;
-                        
-                        // Remove item if both quantities are 0
-                        if (item.totalQty === 0) {
-                            state.inventory.splice(existingIndex, 1);
-                            showMessage(`Deleted lot ${state.lotNumber} completely! (批次 ${state.lotNumber} 已完全删除！)`, 'success');
-                        } else {
-                            showMessage(`Deleted ${totalQty} from lot ${state.lotNumber} successfully! (从批次 ${state.lotNumber} 删除 ${totalQty} 件成功！)`, 'success');
-                        }
-                    }
-                } else {
-                    showMessage(`Lot number ${state.lotNumber} not found in inventory! (批次号 ${state.lotNumber} 未找到！)`, 'error');
-                    return;
-                }
+                
+                window.saveToFirebase();
+                resetForm();
+                showMessage('✅ Saved!', 'success');
+                showStep('action');
+            } else {
+                showMessage('Please enter Yes or No', 'error');
             }
-            
-            saveInventory(); // Save to localStorage
-            renderTable();
         }
 
-        function handleContinueSubmit() {
-            state.continueProcess = document.getElementById('continueInput').value;
-            if (state.continueProcess.toLowerCase() === 'yes') {
-                resetForm();
-                state.currentStep = 'operationType';
-                showMessage('Starting new operation... (开始新的操作...)', 'success');
-                showStep('operationType');
-            } else if (state.continueProcess.toLowerCase() === 'no') {
-                showMessage('Process completed. (流程已完成)', 'success');
-                state.currentStep = 'done';
-                showStep('done');
+        function handleDeleteLotSubmit() {
+            window.state.deleteLotNumber = document.getElementById('deleteLotInput').value.trim();
+            const idx = window.state.inventory.findIndex(item => item.lotNumber.toUpperCase() === window.state.deleteLotNumber.toUpperCase());
+            if (idx === -1) {
+                showMessage('Lot not found', 'error');
             } else {
-                showMessage('Please enter "Yes" or "No". (请输入 "Yes" 或 "No")', 'error');
+                showStep('deleteSize');
             }
+        }
+
+        function handleDeleteSizeSubmit() {
+            window.state.deleteSize = document.getElementById('deleteSizeInput').value;
+            if (window.state.deleteSize) showStep('deletePallet');
+        }
+
+        function handleDeletePalletSubmit() {
+            const pallets = parseInt(document.getElementById('deletePalletInput').value);
+            if (!pallets || pallets <= 0) {
+                showMessage('Invalid pallet amount', 'error');
+                return;
+            }
+
+            const qty = pallets * 1800;
+            const idx = window.state.inventory.findIndex(item => item.lotNumber.toUpperCase() === window.state.deleteLotNumber.toUpperCase());
+            
+            if (idx !== -1) {
+                const isLarge = window.state.deleteSize.toLowerCase() === 'large' || window.state.deleteSize.toLowerCase() === 'l';
+                if (isLarge) {
+                    window.state.inventory[idx].qtyLarge = Math.max(0, window.state.inventory[idx].qtyLarge - qty);
+                    window.state.inventory[idx].palletL = Math.max(0, window.state.inventory[idx].palletL - pallets);
+                } else {
+                    window.state.inventory[idx].qtyXL = Math.max(0, window.state.inventory[idx].qtyXL - qty);
+                    window.state.inventory[idx].palletXL = Math.max(0, window.state.inventory[idx].palletXL - pallets);
+                }
+                window.state.inventory[idx].totalQty = window.state.inventory[idx].qtyLarge + window.state.inventory[idx].qtyXL;
+                
+                if (window.state.inventory[idx].qtyLarge === 0 && window.state.inventory[idx].qtyXL === 0) {
+                    window.state.inventory.splice(idx, 1);
+                }
+                
+                window.saveToFirebase();
+                resetDeleteForm();
+                showMessage('✅ Removed!', 'success');
+                showStep('action');
+            }
+        }
+
+        function goBack() {
+            if (window.state.currentStep === 'size') showStep('lotNumber');
+            else if (window.state.currentStep === 'pallet') showStep('size');
+            else if (window.state.currentStep === 'completed') showStep('pallet');
+        }
+
+        function goBackDelete() {
+            if (window.state.currentStep === 'deleteSize') showStep('delete');
+            else if (window.state.currentStep === 'deletePallet') showStep('deleteSize');
         }
 
         function resetForm() {
-            state.operationType = '';
-            state.lotNumber = '';
-            state.size = '';
-            state.palletAmount = '';
-            state.isCompleted = '';
-            state.continueProcess = '';
+            window.state.lotNumber = '';
+            window.state.size = '';
+            window.state.palletAmount = '';
+            window.state.isCompleted = '';
             document.getElementById('lotNumberInput').value = '';
             document.getElementById('sizeInput').value = '';
             document.getElementById('palletInput').value = '';
             document.getElementById('completedInput').value = '';
-            document.getElementById('continueInput').value = '';
         }
 
-        function goBack() {
-            if (state.currentStep === 'size') {
-                state.currentStep = 'lotNumber';
-                showStep('lotNumber');
-            } else if (state.currentStep === 'pallet') {
-                state.currentStep = 'size';
-                showStep('size');
-            } else if (state.currentStep === 'completed') {
-                state.currentStep = 'pallet';
-                showStep('pallet');
-            } else if (state.currentStep === 'continue') {
-                if (state.operationType === 'add') {
-                    state.currentStep = 'completed';
-                    showStep('completed');
-                } else {
-                    state.currentStep = 'pallet';
-                    showStep('pallet');
-                }
+        function resetDeleteForm() {
+            window.state.deleteLotNumber = '';
+            window.state.deleteSize = '';
+            window.state.deletePalletAmount = '';
+            document.getElementById('deleteLotInput').value = '';
+            document.getElementById('deleteSizeInput').value = '';
+            document.getElementById('deletePalletInput').value = '';
+        }
+
+        function editItem(i) {
+            const item = window.state.inventory[i];
+            const row = event.target.closest('tr');
+            row.innerHTML = `
+                <td class="px-3 py-2">${item.lotNumber}</td>
+                <td class="px-3 py-2">${item.mfgDate}</td>
+                <td class="px-3 py-2">${item.useByDate}</td>
+                <td class="px-3 py-2"><input type="number" id="e-l-${i}" value="${item.qtyLarge}" class="w-20 px-2 py-1 border rounded"></td>
+                <td class="px-3 py-2"><input type="number" id="e-xl-${i}" value="${item.qtyXL}" class="w-20 px-2 py-1 border rounded"></td>
+                <td class="px-3 py-2"><input type="number" id="e-pl-${i}" value="${item.palletL}" class="w-20 px-2 py-1 border rounded"></td>
+                <td class="px-3 py-2"><input type="number" id="e-pxl-${i}" value="${item.palletXL}" class="w-20 px-2 py-1 border rounded"></td>
+                <td class="px-3 py-2">${item.totalQty}</td>
+                <td class="px-3 py-2"><input type="text" id="e-note-${i}" value="${item.note}" class="w-24 px-2 py-1 border rounded text-xs"></td>
+                <td class="px-3 py-2">
+                    <button onclick="saveEdit(${i})" class="px-2 py-1 bg-green-500 text-white rounded text-xs mr-1">Save</button>
+                    <button onclick="renderTable()" class="px-2 py-1 bg-gray-500 text-white rounded text-xs">Cancel</button>
+                </td>
+            `;
+        }
+
+        function saveEdit(i) {
+            window.state.inventory[i].qtyLarge = parseInt(document.getElementById(`e-l-${i}`).value) || 0;
+            window.state.inventory[i].qtyXL = parseInt(document.getElementById(`e-xl-${i}`).value) || 0;
+            window.state.inventory[i].palletL = parseInt(document.getElementById(`e-pl-${i}`).value) || 0;
+            window.state.inventory[i].palletXL = parseInt(document.getElementById(`e-pxl-${i}`).value) || 0;
+            window.state.inventory[i].note = document.getElementById(`e-note-${i}`).value;
+            window.state.inventory[i].totalQty = window.state.inventory[i].qtyLarge + window.state.inventory[i].qtyXL;
+            window.saveToFirebase();
+            showMessage('✅ Updated!', 'success');
+            window.renderTable();
+        }
+
+        function clearAllInventory() {
+            if (confirm('⚠️ Delete ALL data?') && confirm('⚠️ Final confirmation?')) {
+                window.state.inventory = [];
+                window.saveToFirebase();
+                showMessage('✅ Cleared!', 'success');
             }
         }
 
         function downloadCSV() {
-            try {
-                const csvData = generateCSV();
-                const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `inventory_${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                const msg = document.getElementById('copySuccessMsg') || document.getElementById('tableSuccessMsg');
-                if (msg) {
-                    msg.textContent = '✓ File downloaded! Check your downloads folder. (文件已下载！检查下载文件夹)';
-                    msg.classList.remove('hidden');
-                    setTimeout(() => msg.classList.add('hidden'), 4000);
-                }
-            } catch (err) {
-                showMessage('Download failed. Please try "Show Data" option. (下载失败，请使用"显示数据"选项)', 'error');
-            }
+            const headers = ['Lot Number', 'Mfg Date', 'Use-By Date', 'Qty Large', 'Qty XL', 'Pallet L', 'Pallet XL', 'Total Qty', 'Note'];
+            const csv = [headers.join(','), ...window.state.inventory.map(r => 
+                [r.lotNumber, r.mfgDate, r.useByDate, r.qtyLarge, r.qtyXL, r.palletL, r.palletXL, r.totalQty, `"${r.note}"`].join(',')
+            )].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `inventory_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
         }
 
-        async function copyToClipboard() {
-            try {
-                const csvData = generateCSV();
-                await navigator.clipboard.writeText(csvData);
-                
-                const msg = document.getElementById('copySuccessMsg') || document.getElementById('tableSuccessMsg');
-                if (msg) {
-                    msg.textContent = '✓ Copied to clipboard! Paste into Excel. (已复制！可粘贴到Excel)';
-                    msg.classList.remove('hidden');
-                    setTimeout(() => msg.classList.add('hidden'), 4000);
-                }
-            } catch (err) {
-                downloadCSV();
-            }
-        }
-
-        function toggleExportData() {
-            state.showExportData = !state.showExportData;
-            const box = document.getElementById('exportDataBox');
-            const toggleText = document.getElementById('toggleText');
-            
-            if (state.showExportData) {
-                box.classList.remove('hidden');
-                toggleText.textContent = 'Hide Data (隐藏)';
-                document.getElementById('exportTextarea').value = generateCSV();
-            } else {
-                box.classList.add('hidden');
-                toggleText.textContent = 'Show Data (显示)';
-            }
-        }
-
-        // Reset to default inventory
-        document.getElementById('resetBtn').onclick = function() {
-            if (confirm('Are you sure you want to reset to the original inventory data? All changes will be lost. (确定要重置到原始库存数据吗？所有更改将丢失。)')) {
-                state.inventory = [...DEFAULT_INVENTORY];
-                saveInventory();
-                renderTable();
-                showMessage('Inventory reset to default successfully! (库存已重置为原始数据！)', 'success');
-            }
-        };
-
-        // Logout
         document.getElementById('logoutBtn').onclick = function() {
-            state.isAuthenticated = false;
-            state.currentStep = 'pin';
-            resetForm();
+            window.state.isAuthenticated = false;
             document.getElementById('logoutBtn').classList.add('hidden');
-            document.getElementById('resetBtn').classList.add('hidden');
             document.getElementById('inventorySection').classList.add('hidden');
-            document.getElementById('messageBox').classList.add('hidden');
             showStep('pin');
         };
-
-        // Enter key handlers
-        document.getElementById('pinInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handlePinSubmit();
-        });
-        document.getElementById('lotNumberInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLotNumberSubmit();
-        });
-        document.getElementById('sizeInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSizeSubmit();
-        });
-        document.getElementById('palletInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handlePalletSubmit();
-        });
-        document.getElementById('completedInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleCompletedSubmit();
-        });
-        document.getElementById('continueInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleContinueSubmit();
-        });
     </script>
 </body>
 </html>
